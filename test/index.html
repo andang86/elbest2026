@@ -147,6 +147,23 @@
   .empty.show{display:block}
   .empty b{color:var(--ink)}
 
+  /* ===== 교섭 진행 상황판 ===== */
+  .board{max-width:var(--maxread); margin:0 auto 14px; padding:16px 18px; background:var(--card); border:1px solid var(--line); border-radius:14px}
+  .board-top{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:0 0 10px}
+  .board-title{font-size:13px; font-weight:800; letter-spacing:-.01em; color:var(--ink)}
+  .board-pct{font-size:12.5px; font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums}
+  .board-prog{height:7px; border-radius:999px; background:var(--line-2); overflow:hidden; margin:0 0 13px}
+  .board-prog i{display:block; height:100%; background:#1f7a3d; border-radius:999px; transition:width .35s}
+  .board-chips{display:flex; flex-wrap:wrap; gap:7px}
+  .fchip{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); background:var(--paper); color:var(--ink-2); border-radius:999px; padding:5px 11px; font-size:12.5px; font-weight:700; font-family:inherit; cursor:pointer}
+  .fchip .dot{width:8px; height:8px; border-radius:50%; background:var(--stc,var(--muted))}
+  .fchip b{color:var(--ink); font-variant-numeric:tabular-nums}
+  .fchip.active{border-color:var(--red); background:var(--red); color:#fff}
+  .fchip.active b{color:#fff}
+  .fchip.active .dot{outline:2px solid rgba(255,255,255,.6)}
+  .st-badge{font-size:11px; font-weight:800; color:#fff; background:var(--stc,var(--muted)); border-radius:999px; padding:2px 9px; white-space:nowrap}
+  .art.flagged{box-shadow:inset 3px 0 var(--stc,transparent); padding-left:14px}
+
   /* ---------- back to top ---------- */
   .totop{
     position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom)); z-index:30;
@@ -324,10 +341,12 @@
         </div>
       </section>
 
+      <div class="board" id="board" hidden></div>
+
       <div id="content"></div>
 
       <div class="empty" id="empty">
-        검색어 <b id="emptyq"></b>에 해당하는 조문이 없습니다.
+        <span id="emptymsg"></span>
       </div>
 
       <div class="dataerr" id="dataerr" hidden>
@@ -370,6 +389,20 @@
   const meta = CBA.meta || {};
   const DATA = CBA.chapters;
 
+  /* ===== 교섭 상태 정의 (data.js의 meta.statuses가 있으면 우선, 없으면 기본값) ===== */
+  const DEF_STATUSES=[
+    {key:"unresolved", label:"미합의",   color:"#7c7772"},
+    {key:"issue",      label:"쟁점",     color:"#b21030"},
+    {key:"company",    label:"사측수정안", color:"#2563a8"},
+    {key:"agreed",     label:"타결",     color:"#1f7a3d"}
+  ];
+  const STATUSES=(Array.isArray(meta.statuses)&&meta.statuses.length)?meta.statuses:DEF_STATUSES;
+  const stMap=Object.fromEntries(STATUSES.map(s=>[s.key,s]));
+  const DEFAULT_ST=STATUSES[0].key;
+  const DONE_ST=STATUSES[STATUSES.length-1].key;
+  const stKeyOf=a=>(a&&a.st&&stMap[a.st])?a.st:DEFAULT_ST;
+  let activeStatus="all";
+
   /* ===== 메타 주입 ===== */
   const setText=(id,v)=>{const el=$(id); if(el&&v!=null) el.textContent=v;};
   const setHTML=(id,v)=>{const el=$(id); if(el&&v!=null) el.innerHTML=v;};
@@ -398,9 +431,11 @@
     ch.arts.forEach(a=>{
       const words=[a.t]; a.b.forEach(x=>{if(x.t)words.push(x.t); if(x.L)words.push(x.L.join(" "));});
       const hay=words.join(" ").toLowerCase();
-      html+=`<article class="art" id="art-${a.n}" data-ch="${ch.n}" data-search="${esc(hay)}">`;
+      const sk=stKeyOf(a); const s=stMap[sk]; const flagged=sk!==DEFAULT_ST;
+      html+=`<article class="art${flagged?" flagged":""}" id="art-${a.n}" data-ch="${ch.n}" data-st="${sk}" data-search="${esc(hay)}"${flagged?` style="--stc:${s.color}"`:""}>`;
       html+=`<div class="art-head"><span class="art-no">제${a.n}조</span><span class="art-t">${esc(a.t)}</span>`;
       if(a.note) html+=`<span class="note-badge">${esc(a.note)}</span>`;
+      if(flagged) html+=`<span class="st-badge" style="--stc:${s.color}">${esc(s.label)}</span>`;
       html+=`<button class="lnk" data-jo="${a.n}" aria-label="제${a.n}조 링크 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>링크</button>`;
       html+=`</div>`;
       a.b.forEach(x=>{
@@ -458,15 +493,11 @@ function runSearch(){
   const term=q.value.trim().toLowerCase();
   clr.style.display=term?"block":"none";
   clearMarks();
-  if(!term){
-    arts.forEach(a=>a.style.display="");
-    chs.forEach(c=>c.style.display="");
-    empty.classList.remove("show");
-    return;
-  }
   let any=false;
   arts.forEach(a=>{
-    const hit=a.dataset.search.includes(term);
+    const okText=!term||a.dataset.search.includes(term);
+    const okStat=activeStatus==="all"||a.dataset.st===activeStatus;
+    const hit=okText&&okStat;
     a.style.display=hit?"":"none";
     if(hit) any=true;
   });
@@ -474,9 +505,14 @@ function runSearch(){
     const visible=[...c.querySelectorAll(".art")].some(a=>a.style.display!=="none");
     c.style.display=visible?"":"none";
   });
-  emptyq.textContent="“"+q.value.trim()+"”";
-  empty.classList.toggle("show",!any);
-  highlight(term);
+  const em=document.getElementById("emptymsg");
+  if(!any){
+    if(em) em.textContent = term ? ("검색어 “"+q.value.trim()+"”에 해당하는 조문이 없습니다.") : "해당 상태의 조문이 없습니다.";
+    empty.classList.add("show");
+  } else {
+    empty.classList.remove("show");
+  }
+  if(term) highlight(term);
 }
 let deb;
 q.addEventListener("input",()=>{clearTimeout(deb);deb=setTimeout(runSearch,120);});
@@ -582,9 +618,36 @@ themeBtn.addEventListener("click",()=>{
   applyTheme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark");
 });
 
+/* ===== 교섭 진행 상황판 ===== */
+const board=$("board");
+function buildBoard(){
+  const counts={}; STATUSES.forEach(s=>counts[s.key]=0);
+  arts.forEach(a=>{const k=a.dataset.st; counts[k]=(counts[k]||0)+1;});
+  const total=arts.length;
+  const done=counts[DONE_ST]||0;
+  const pct=total?Math.round(done/total*100):0;
+  const doneLabel=(stMap[DONE_ST]&&stMap[DONE_ST].label)||"완료";
+  let chips=`<button class="fchip active" data-st="all">전체 <b>${total}</b></button>`;
+  STATUSES.forEach(s=>{ chips+=`<button class="fchip" data-st="${s.key}" style="--stc:${s.color}"><span class="dot"></span>${esc(s.label)} <b>${counts[s.key]||0}</b></button>`; });
+  board.innerHTML=`<div class="board-top"><span class="board-title">교섭 진행 현황</span><span class="board-pct">${esc(doneLabel)} ${done} / ${total} · ${pct}%</span></div><div class="board-prog"><i style="width:${pct}%"></i></div><div class="board-chips">${chips}</div>`;
+  board.hidden=false;
+}
+buildBoard();
+board.addEventListener("click",e=>{
+  const b=e.target.closest(".fchip"); if(!b) return;
+  activeStatus=b.dataset.st;
+  [...board.querySelectorAll(".fchip")].forEach(x=>x.classList.toggle("active",x===b));
+  runSearch();
+});
+
 /* 인쇄 · PDF */
 $("printBtn").addEventListener("click",()=>{closePanel(); window.print();});
-window.addEventListener("beforeprint",()=>{if(q.value){q.value=""; runSearch();}});
+window.addEventListener("beforeprint",()=>{
+  let changed=false;
+  if(q.value){q.value=""; changed=true;}
+  if(activeStatus!=="all"){activeStatus="all"; [...board.querySelectorAll(".fchip")].forEach(x=>x.classList.toggle("active",x.dataset.st==="all")); changed=true;}
+  if(changed) runSearch();
+});
 
 })();
 </script>
