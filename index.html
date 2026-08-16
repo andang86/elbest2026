@@ -38,7 +38,9 @@
     max-width:1180px; margin:0 auto; padding:9px 16px;
     display:flex; align-items:center; gap:12px;
   }
-  .brand{display:flex; flex-direction:column; line-height:1.15; min-width:0}
+  .brand{display:flex; flex-direction:column; line-height:1.15; min-width:0; cursor:pointer; border-radius:8px}
+  .brand:hover .doc{color:var(--red)}
+  .brand:focus-visible{outline:2px solid var(--red); outline-offset:2px}
   .brand .eyebrow{font-size:11px; letter-spacing:.02em; color:var(--red); font-weight:700; white-space:nowrap}
   .brand .doc{font-size:15px; font-weight:800; letter-spacing:-.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
   .grow{flex:1 1 auto}
@@ -388,7 +390,7 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
       목차
     </button>
-    <div class="brand">
+    <div class="brand" id="brandHome" role="button" tabindex="0" aria-label="처음 화면으로" title="처음 화면으로">
       <span class="eyebrow" id="m-eyebrow"></span>
       <span class="doc" id="m-doc"></span>
     </div>
@@ -773,6 +775,21 @@ function setTab(t){
 }
 if(tabDoc) tabDoc.addEventListener("click",()=>{ setTab("doc"); if(location.hash==="#jin") history.replaceState(null,"",location.pathname); });
 if(tabProg) tabProg.addEventListener("click",()=>{ setTab("prog"); history.replaceState(null,"","#jin"); window.scrollTo({top:0}); });
+
+/* ===== 제목(로고) 클릭 → 처음 화면 ===== */
+const brandHome=$("brandHome");
+function goHome(){
+  setTab("doc");
+  if(q && q.value){ q.value=""; }
+  favOnly=false; updateFavToggle();
+  runSearch();
+  if(location.hash){ history.replaceState(null,"", location.pathname+location.search); }
+  try{ window.scrollTo({top:0,behavior:"smooth"}); }catch(e){ try{ window.scrollTo(0,0); }catch(_){} }
+}
+if(brandHome){
+  brandHome.addEventListener("click",goHome);
+  brandHome.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); goHome(); } });
+}
 
 /* ===== 교섭 진행 렌더 ===== */
 function buildProgress(){
