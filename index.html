@@ -206,6 +206,13 @@
   .plog li:not(:last-child)::after{content:""; position:absolute; left:5px; top:13px; bottom:0; width:1.5px; background:var(--line)}
   .ptag{display:block; font-size:12px; font-weight:800; color:var(--red); margin:0 0 2px}
   .ptext{display:block; font-size:14px; line-height:1.65; color:var(--ink-2)}
+  .pdecide{margin-top:9px; background:var(--wash); border:1px solid var(--line); border-left:3px solid var(--red); border-radius:9px; padding:9px 12px}
+  .pd-h{font-size:10.5px; font-weight:800; color:var(--red); letter-spacing:.03em; margin:0 0 5px}
+  .pd-list{margin:0 0 2px; padding:0; list-style:none}
+  .pd-list li{position:relative; padding:0 0 3px 13px; margin:0; font-size:13.5px; line-height:1.55; color:var(--ink)}
+  .pd-list li::before{content:""; position:absolute; left:2px; top:8px; width:4px; height:4px; border-radius:50%; background:var(--red)}
+  .pd-next{margin-top:7px; font-size:13.5px; font-weight:700; color:var(--ink); line-height:1.5}
+  .pd-next span{display:inline-block; font-size:10px; font-weight:800; color:#fff; background:var(--red); border-radius:5px; padding:2px 7px; margin-right:7px; vertical-align:1px}
   .prog-empty{padding:60px 20px; text-align:center; color:var(--muted); font-size:14px}
 
   /* ---------- back to top ---------- */
@@ -744,7 +751,18 @@ function buildProgress(){
     h+=`<div class="pcols"><div class="pcol"><h4>노조측 교섭위원</h4>${memList(c.union)}</div><div class="pcol"><h4>회사측 교섭위원</h4>${memList(c.company)}</div></div>`;
     if(Array.isArray(c.log)&&c.log.length){
       h+=`<div class="plog"><h4>주요 논의 상황</h4><ul>`;
-      c.log.forEach(e=>{ const tag=[e.round,e.date].filter(Boolean).map(esc).join(" · "); h+=`<li>${tag?`<span class="ptag">${tag}</span>`:""}<span class="ptext">${esc(e.text||"")}</span></li>`; });
+      c.log.forEach(e=>{
+        const tag=[e.round,e.date].filter(Boolean).map(esc).join(" · ");
+        const decs=Array.isArray(e.decisions)?e.decisions.filter(x=>x&&x.trim()):[];
+        let extra="";
+        if(decs.length||(e.next&&e.next.trim())){
+          extra+=`<div class="pdecide">`;
+          if(decs.length) extra+=`<div class="pd-h">결정사항</div><ul class="pd-list">${decs.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+          if(e.next&&e.next.trim()) extra+=`<div class="pd-next"><span>다음 일정</span>${esc(e.next)}</div>`;
+          extra+=`</div>`;
+        }
+        h+=`<li>${tag?`<span class="ptag">${tag}</span>`:""}<span class="ptext">${esc(e.text||"")}</span>${extra}</li>`;
+      });
       h+=`</ul></div>`;
     }
     h+=`</section>`;
