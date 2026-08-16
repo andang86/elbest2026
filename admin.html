@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#b21030">
-<title>교섭 진행 편집기</title>
+<title>교섭 현황판 편집기</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
@@ -70,7 +70,7 @@
 </head>
 <body>
 <header>
-  <h1>교섭 진행 편집기</h1>
+  <h1>교섭 현황판 편집기</h1>
   <p>폼을 채우고 아래 <b>progress.js 생성</b> → 파일을 저장소에 업로드하세요.</p>
 </header>
 <main>
@@ -93,7 +93,7 @@
   </section>
 
   <section class="glob">
-    <label class="fld">안내 문구 (교섭 진행 탭 상단)
+    <label class="fld">안내 문구 (교섭 현황판 탭 상단)
       <textarea id="g-intro" rows="2"></textarea>
     </label>
     <label class="fld">최종 업데이트 날짜
@@ -105,7 +105,7 @@
   <button class="add" id="addCompany">＋ 회사 추가</button>
 
   <section class="glob">
-    <div class="mem-h" style="font-size:12.5px">교섭 진행 탭 암호 <span id="gateStatus" style="font-weight:700"></span></div>
+    <div class="mem-h" style="font-size:12.5px">교섭 현황판 탭 암호 <span id="gateStatus" style="font-weight:700"></span></div>
     <label class="fld">새 암호 (바꿀 때만 입력, 비우면 기존 유지)
       <input id="gatePw" type="text" placeholder="예: elbest2026" autocomplete="off">
     </label>
@@ -278,7 +278,7 @@
         catch(e){ alert("암호 설정은 실제 사이트(https 주소)에서 해주세요. 이번 생성물에는 기존 암호가 유지됩니다."); if(state.gate&&state.gate.hash) st.gate={hash:state.gate.hash}; }
       } else if(state.gate&&state.gate.hash){ st.gate={hash:state.gate.hash}; }
     }
-    return "/* progress.js — 교섭 진행 데이터 (admin.html에서 생성) */\n"+
+    return "/* progress.js — 교섭 현황판 데이터 (admin.html에서 생성) */\n"+
            "window.CBA_PROGRESS = "+JSON.stringify(st,null,2)+";\n";
   }
   function flashBtn(btn,msg){ const o=btn.textContent; btn.textContent=msg; setTimeout(()=>btn.textContent=o,1200); }
