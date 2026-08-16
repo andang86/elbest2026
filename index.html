@@ -147,15 +147,23 @@
   .empty.show{display:block}
   .empty b{color:var(--ink)}
 
-  /* ===== 공지 박스 ===== */
-  .notice-box{max-width:var(--maxread); margin:16px auto 4px; padding:14px 16px; background:#fff8ee; border:1px solid #ecd9b0; border-left:3px solid var(--red); border-radius:12px}
-  html[data-theme="dark"] .notice-box{background:#2a2213; border-color:#4a3d1e}
-  .notice-box .n-title{display:flex; align-items:center; gap:7px; font-size:13px; font-weight:800; color:var(--red); margin:0 0 8px}
-  .notice-box .n-title::before{content:"📢"; font-size:14px}
-  .notice-box ul{margin:0; padding:0; list-style:none}
-  .notice-box li{position:relative; padding:0 0 0 14px; margin:0 0 6px; font-size:14px; line-height:1.65; color:var(--ink-2)}
-  .notice-box li:last-child{margin-bottom:0}
-  .notice-box li::before{content:""; position:absolute; left:2px; top:9px; width:5px; height:5px; border-radius:50%; background:var(--red)}
+  /* ===== 공지 (슬림 바 + 팝업) ===== */
+  .notice-open{display:none; width:100%; max-width:var(--maxread); margin:14px auto 2px; align-items:center; gap:7px; background:#fff8ee; border:1px solid #ecd9b0; border-left:3px solid var(--red); border-radius:10px; padding:10px 14px; font-size:13.5px; font-weight:700; color:var(--red); font-family:inherit; text-align:left; cursor:pointer}
+  .notice-open:not([hidden]){display:flex}
+  html[data-theme="dark"] .notice-open{background:#2a2213; border-color:#4a3d1e}
+  .notice-modal{display:none; position:fixed; inset:0; z-index:200; align-items:center; justify-content:center; padding:20px}
+  .notice-modal:not([hidden]){display:flex}
+  .nm-backdrop{position:absolute; inset:0; background:rgba(0,0,0,.5)}
+  .nm-card{position:relative; z-index:1; width:100%; max-width:440px; max-height:82vh; overflow:auto; background:var(--card); border-radius:16px; padding:22px 22px 18px; box-shadow:0 20px 60px rgba(0,0,0,.32)}
+  .nm-title{display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; color:var(--red); margin:0 0 14px}
+  .nm-title::before{content:"📢"}
+  .nm-list{margin:0 0 16px; padding:0; list-style:none}
+  .nm-list li{position:relative; padding:0 0 10px 15px; font-size:14.5px; line-height:1.65; color:var(--ink)}
+  .nm-list li:last-child{padding-bottom:2px}
+  .nm-list li::before{content:""; position:absolute; left:3px; top:9px; width:5px; height:5px; border-radius:50%; background:var(--red)}
+  .nm-dont{display:flex; align-items:center; gap:7px; font-size:13px; color:var(--muted); margin:0 0 14px; cursor:pointer}
+  .nm-dont input{width:auto; margin:0}
+  .nm-confirm{display:block; width:100%; border:0; background:var(--red); color:#fff; border-radius:11px; padding:13px; font-size:15px; font-weight:800; font-family:inherit; cursor:pointer}
 
   /* ===== 탭 ===== */
   .tabs{position:sticky; top:var(--topbar-h,54px); z-index:20; display:flex; gap:2px; max-width:var(--maxread); margin:0 auto; padding:10px 0 0; background:var(--paper)}
@@ -214,6 +222,17 @@
   .pd-next{margin-top:7px; font-size:13.5px; font-weight:700; color:var(--ink); line-height:1.5}
   .pd-next span{display:inline-block; font-size:10px; font-weight:800; color:#fff; background:var(--red); border-radius:5px; padding:2px 7px; margin-right:7px; vertical-align:1px}
   .prog-empty{padding:60px 20px; text-align:center; color:var(--muted); font-size:14px}
+  /* 교섭 진행 잠금 */
+  .lock{max-width:var(--maxread); margin:0 auto; padding:40px 0}
+  .lock-card{max-width:340px; margin:0 auto; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:28px 22px; text-align:center}
+  .lock-ic{font-size:30px}
+  .lock-title{font-size:18px; font-weight:800; color:var(--ink); margin:8px 0 4px}
+  .lock-desc{font-size:13.5px; color:var(--muted); margin:0 0 16px; line-height:1.6}
+  .lock-input{width:100%; font-family:inherit; font-size:15px; text-align:center; border:1px solid var(--line); border-radius:10px; padding:11px; background:var(--paper); color:var(--ink)}
+  .lock-input:focus{outline:none; border-color:var(--red)}
+  .lock-hint{font-size:12.5px; color:var(--muted); margin:10px 0 0}
+  .lock-err{font-size:13px; color:var(--red); font-weight:700; margin:10px 0 0}
+  .lock-btn{width:100%; margin-top:14px; border:0; background:var(--red); color:#fff; border-radius:11px; padding:12px; font-size:15px; font-weight:800; font-family:inherit; cursor:pointer}
 
   /* ---------- back to top ---------- */
   .totop{
@@ -333,7 +352,7 @@
 
   /* ===== 인쇄 · PDF ===== */
   @media print{
-    .topbar,.rail,.drawer,.scrim,.totop,.panel,.lnk,.fav,.art-actions,.resume,.testbadge,.dataerr,.tabs,.filterbar{display:none !important}
+    .topbar,.rail,.drawer,.scrim,.totop,.panel,.lnk,.fav,.art-actions,.resume,.testbadge,.dataerr,.tabs,.filterbar,.notice-open,.notice-modal{display:none !important}
     .shell{display:block}
     main{padding:0}
     .wrap{max-width:none; padding:0}
@@ -406,7 +425,16 @@
       <button class="tab" id="tabProg" role="tab" aria-selected="false" data-tab="prog">교섭 진행</button>
     </div>
     <div class="wrap">
-      <div class="notice-box" id="notice" hidden></div>
+      <button class="notice-open" id="noticeOpen" hidden></button>
+      <div class="notice-modal" id="noticeModal" hidden>
+        <div class="nm-backdrop" id="nmBackdrop"></div>
+        <div class="nm-card" role="dialog" aria-modal="true" aria-labelledby="nmTitle">
+          <p class="nm-title" id="nmTitle"></p>
+          <ul class="nm-list" id="nmList"></ul>
+          <label class="nm-dont"><input type="checkbox" id="nmDont"> 오늘 하루 보지 않기</label>
+          <button class="nm-confirm" id="nmConfirm">확인</button>
+        </div>
+      </div>
 
       <section id="tab-doc" class="tabpanel" role="tabpanel" aria-labelledby="tabDoc">
         <section class="hero">
@@ -432,6 +460,17 @@
       </section>
 
       <section id="tab-prog" class="tabpanel" role="tabpanel" aria-labelledby="tabProg" hidden>
+        <div class="lock" id="prog-lock" hidden>
+          <div class="lock-card">
+            <div class="lock-ic">🔒</div>
+            <p class="lock-title">교섭 진행</p>
+            <p class="lock-desc">조합원 열람용입니다. 암호를 입력해 주세요.</p>
+            <input class="lock-input" id="lockInput" type="password" placeholder="암호" autocomplete="off" autocapitalize="off">
+            <p class="lock-hint" id="lockHint" hidden></p>
+            <p class="lock-err" id="lockErr" hidden>암호가 올바르지 않습니다.</p>
+            <button class="lock-btn" id="lockBtn">확인</button>
+          </div>
+        </div>
         <div id="prog-content"></div>
       </section>
 
@@ -770,13 +809,61 @@ function buildProgress(){
   box.innerHTML=h;
 }
 buildProgress();
+
+/* ===== 교섭 진행 탭 암호 잠금 (가림용) ===== */
+const P0 = window.CBA_PROGRESS||CBA.progress||{};
+const gateHash = (P0.gate && P0.gate.hash) ? String(P0.gate.hash) : null;
+let progUnlocked = !gateHash;
+if(gateHash){ try{ if(localStorage.getItem("cba-prog-unlock")===gateHash) progUnlocked=true; }catch(e){} }
+function applyGate(){
+  const lock=$("prog-lock"), content=$("prog-content"); if(!content) return;
+  if(!gateHash || progUnlocked){ if(lock) lock.hidden=true; content.hidden=false; }
+  else { if(lock) lock.hidden=false; content.hidden=true; }
+}
+async function sha256hex(s){
+  const b=await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+async function tryUnlock(){
+  const inp=$("lockInput"), errEl=$("lockErr"); if(!inp) return;
+  const v=(inp.value||"").trim(); if(!v) return;
+  let hex=""; try{ hex=await sha256hex(v); }catch(e){}
+  if(hex && hex===gateHash){
+    progUnlocked=true; try{ localStorage.setItem("cba-prog-unlock", gateHash); }catch(e){}
+    if(errEl) errEl.hidden=true; applyGate();
+  } else { if(errEl) errEl.hidden=false; }
+}
+(function initGate(){
+  if(gateHash && P0.gate && P0.gate.hint){ const hEl=$("lockHint"); if(hEl){ hEl.textContent="힌트: "+P0.gate.hint; hEl.hidden=false; } }
+  const b=$("lockBtn"), i=$("lockInput");
+  if(b) b.addEventListener("click",tryUnlock);
+  if(i) i.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); tryUnlock(); } });
+  applyGate();
+})();
 (function buildNotice(){
   const P=window.CBA_PROGRESS||CBA.progress||{};
-  const N=P.notice; const box=$("notice"); if(!box) return;
+  const N=P.notice;
   const items=(N&&Array.isArray(N.items))?N.items.filter(x=>x&&x.trim()):[];
-  if(!N || !items.length){ box.hidden=true; return; }
-  box.innerHTML=`<p class="n-title">${esc(N.title||"공지사항")}</p><ul>${items.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
-  box.hidden=false;
+  const openBtn=$("noticeOpen"), modal=$("noticeModal");
+  if(!openBtn||!modal) return;
+  if(!N||!items.length){ openBtn.hidden=true; modal.hidden=true; return; }
+  const title=N.title||"공지사항";
+  $("nmTitle").textContent=title;
+  $("nmList").innerHTML=items.map(x=>`<li>${esc(x)}</li>`).join("");
+  openBtn.textContent="📢 "+title+" 보기";
+  openBtn.hidden=false;
+  const openM=()=>{ modal.hidden=false; };
+  const closeM=()=>{
+    modal.hidden=true;
+    if($("nmDont").checked){ try{ localStorage.setItem("cba-notice-hide", new Date().toISOString().slice(0,10)); }catch(e){} }
+  };
+  openBtn.addEventListener("click",openM);
+  $("nmConfirm").addEventListener("click",closeM);
+  $("nmBackdrop").addEventListener("click",closeM);
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!modal.hidden) closeM(); });
+  let hideDate=null; try{ hideDate=localStorage.getItem("cba-notice-hide"); }catch(e){}
+  const today=new Date().toISOString().slice(0,10);
+  if(hideDate!==today) openM();
 })();
 syncTopbarH();
 window.addEventListener("resize",syncTopbarH,{passive:true});
