@@ -1,10 +1,4 @@
-/* ============================================================
-   progress.js — 교섭 진행 데이터 ('교섭 진행' 탭에 표시)
-   ------------------------------------------------------------
-   · admin.html 편집기에서 폼으로 채우고 '생성'하면 이 파일이 만들어집니다.
-   · notice: 상단 공지 / intro·updated / companies[]
-   · log 항목: {round,date,text,decisions[],next}
-   ============================================================ */
+/* progress.js — 교섭 진행 데이터 (admin.html에서 생성) */
 window.CBA_PROGRESS = {
   "notice": {
     "title": "공지사항",
@@ -85,8 +79,10 @@ window.CBA_PROGRESS = {
       "round": "상견례 이후 2차 교섭 예정",
       "summary": "교섭 일정 협의 중.",
       "union": [],
-      "company": [],
-      "log": []
+      "company": []
     }
-  ]
+  ],
+  "gate": {
+    "hash": "21d14a11942690309495a758e4d83a7283bf707063ae9e475ca039a062c3f5ac"
+  }
 };
