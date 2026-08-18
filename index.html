@@ -124,6 +124,9 @@
   }
   .art-t{font-size:17px; font-weight:800; letter-spacing:-.01em; line-height:1.4}
   .note-badge{font-size:11px; font-weight:700; color:#8a5a00; background:#fdf3dd; border:1px solid #f0dca6; border-radius:999px; padding:2px 9px}
+  .rev-badge{font-size:11px; font-weight:800; color:#fff; background:var(--red); border:0; border-radius:999px; padding:2px 9px; font-family:inherit; cursor:pointer; letter-spacing:-.01em}
+  .rev-badge:hover{background:var(--red-deep)}
+  .rev-badge:focus-visible{outline:2px solid var(--red); outline-offset:2px}
 
   .clause{display:flex; gap:9px; margin:0 0 9px; align-items:baseline}
   .clause:last-child{margin-bottom:0}
@@ -177,9 +180,9 @@
   .tab[aria-selected="true"]{color:var(--red); border-bottom-color:var(--red)}
   .tab:focus-visible{outline:2px solid var(--red); outline-offset:-2px}
   .tabpanel[hidden]{display:none}
-  html[data-tab="prog"] .rail{display:none}
-  html[data-tab="prog"] .search{display:none}
-  html[data-tab="prog"] .menu-btn{display:none}
+  html[data-tab="prog"] .rail,html[data-tab="hist"] .rail{display:none}
+  html[data-tab="prog"] .search,html[data-tab="hist"] .search{display:none}
+  html[data-tab="prog"] .menu-btn,html[data-tab="hist"] .menu-btn{display:none}
 
   /* ===== 즐겨찾기 필터 바 ===== */
   .filterbar{display:flex; margin:0 0 8px}
@@ -235,6 +238,30 @@
   .lock-hint{font-size:12.5px; color:var(--muted); margin:10px 0 0}
   .lock-err{font-size:13px; color:var(--red); font-weight:700; margin:10px 0 0}
   .lock-btn{width:100%; margin-top:14px; border:0; background:var(--red); color:#fff; border-radius:11px; padding:12px; font-size:15px; font-weight:800; font-family:inherit; cursor:pointer}
+
+  /* ===== 개정 이력 탭 ===== */
+  #tab-hist{max-width:var(--maxread); margin:0 auto}
+  .hist-intro{font-size:15px; line-height:1.7; color:var(--ink-2); margin:18px 0 6px}
+  .hist-updated{font-size:12.5px; color:var(--muted); font-weight:700; margin:0 0 18px}
+  .hcard{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 18px; margin:0 0 16px}
+  .hcard-top{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin:0 0 8px}
+  .hver{font-size:12px; font-weight:800; color:#fff; background:var(--red); border-radius:999px; padding:3px 10px}
+  .hlabel{font-size:16px; font-weight:800; color:var(--ink)}
+  .hdate{margin-left:auto; font-size:13px; font-weight:700; color:var(--muted)}
+  .hsum{font-size:14.5px; line-height:1.7; color:var(--ink-2); margin:0 0 12px}
+  .hchg{list-style:none; margin:0; padding:0}
+  .hchg li{display:flex; gap:9px; align-items:flex-start; padding:9px 0; border-top:1px solid var(--line-2)}
+  .hchg li:first-child{border-top:0}
+  .htag{flex:none; font-size:11px; font-weight:800; border-radius:6px; padding:2px 8px; white-space:nowrap; margin-top:2px}
+  .htag.add{color:#fff; background:var(--red)}
+  .htag.edit{color:var(--red-deep); background:var(--red-soft)}
+  .htag.del{color:#fff; background:var(--muted)}
+  .hchg .jo{flex:none; font-size:12.5px; font-weight:800; color:var(--red-deep); background:var(--red-soft); border:0; border-radius:6px; padding:2px 8px; white-space:nowrap; margin-top:1px; cursor:pointer; font-family:inherit}
+  .hchg .jo:hover{background:var(--red); color:#fff}
+  .hchg .cd{flex:1; min-width:0}
+  .hchg .cd b{display:block; font-size:14.5px; color:var(--ink); font-weight:700; margin:0 0 2px}
+  .hchg .cd span{display:block; font-size:13.5px; line-height:1.6; color:var(--ink-2)}
+  .hist-empty{padding:60px 20px; text-align:center; color:var(--muted); font-size:14px}
 
   /* ---------- back to top ---------- */
   .totop{
@@ -354,7 +381,7 @@
 
   /* ===== 인쇄 · PDF ===== */
   @media print{
-    .topbar,.rail,.drawer,.scrim,.totop,.panel,.lnk,.fav,.art-actions,.resume,.testbadge,.dataerr,.tabs,.filterbar,.notice-open,.notice-modal{display:none !important}
+    .topbar,.rail,.drawer,.scrim,.totop,.panel,.lnk,.fav,.art-actions,.resume,.testbadge,.dataerr,.tabs,.filterbar,.notice-open,.notice-modal,.rev-badge{display:none !important}
     .shell{display:block}
     main{padding:0}
     .wrap{max-width:none; padding:0}
@@ -425,6 +452,7 @@
     <div class="tabs" id="tabs" role="tablist" aria-label="보기 전환">
       <button class="tab" id="tabDoc" role="tab" aria-selected="true" data-tab="doc">단협 요구안</button>
       <button class="tab" id="tabProg" role="tab" aria-selected="false" data-tab="prog">교섭 현황판</button>
+      <button class="tab" id="tabHist" role="tab" aria-selected="false" data-tab="hist">개정 이력</button>
     </div>
     <div class="wrap">
       <button class="notice-open" id="noticeOpen" hidden></button>
@@ -474,6 +502,10 @@
           </div>
         </div>
         <div id="prog-content"></div>
+      </section>
+
+      <section id="tab-hist" class="tabpanel" role="tabpanel" aria-labelledby="tabHist" hidden>
+        <div id="hist-content"></div>
       </section>
 
       <div class="dataerr" id="dataerr" hidden>
@@ -550,6 +582,7 @@
       html+=`<article class="art" id="art-${a.n}" data-ch="${ch.n}" data-search="${esc(hay)}">`;
       html+=`<div class="art-head"><span class="art-no">제${a.n}조</span><span class="art-t">${esc(a.t)}</span>`;
       if(a.note) html+=`<span class="note-badge">${esc(a.note)}</span>`;
+      if(a.rev) html+=`<button class="rev-badge" data-jo="${a.n}" aria-label="개정 이력 보기">${esc(typeof a.rev==="string"?a.rev:(a.rev.label||"개정"))}</button>`;
       html+=`<span class="art-actions"><button class="fav" data-jo="${a.n}" aria-label="제${a.n}조 즐겨찾기" aria-pressed="false">☆</button><button class="lnk" data-jo="${a.n}" aria-label="제${a.n}조 링크 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>링크</button></span>`;
       html+=`</div>`;
       a.b.forEach(x=>{
@@ -696,6 +729,8 @@ function copyText(t){
   });
 }
 content.addEventListener("click",e=>{
+  const rv=e.target.closest(".rev-badge");
+  if(rv){ setTab("hist"); history.replaceState(null,"","#history"); window.scrollTo({top:0}); return; }
   const fb=e.target.closest(".fav");
   if(fb){ toggleFav(fb.dataset.jo); return; }
   const b=e.target.closest(".lnk"); if(!b) return;
@@ -760,21 +795,24 @@ if(favToggle){
 }
 updateFavToggle();
 
-/* ===== 탭 전환 (단협 요구안 / 교섭 진행) ===== */
-const tabDoc=$("tabDoc"), tabProg=$("tabProg"), panDoc=$("tab-doc"), panProg=$("tab-prog");
+/* ===== 탭 전환 (단협 요구안 / 교섭 진행 / 개정 이력) ===== */
+const tabDoc=$("tabDoc"), tabProg=$("tabProg"), tabHist=$("tabHist"), panDoc=$("tab-doc"), panProg=$("tab-prog"), panHist=$("tab-hist");
 const topbarEl=document.querySelector(".topbar");
 function syncTopbarH(){ if(topbarEl) document.documentElement.style.setProperty("--topbar-h", topbarEl.offsetHeight+"px"); }
 function setTab(t){
-  t=(t==="prog")?"prog":"doc";
+  if(t!=="prog"&&t!=="hist") t="doc";
   document.documentElement.setAttribute("data-tab",t);
   if(panDoc) panDoc.hidden=(t!=="doc");
   if(panProg) panProg.hidden=(t!=="prog");
+  if(panHist) panHist.hidden=(t!=="hist");
   if(tabDoc) tabDoc.setAttribute("aria-selected",t==="doc"?"true":"false");
   if(tabProg) tabProg.setAttribute("aria-selected",t==="prog"?"true":"false");
+  if(tabHist) tabHist.setAttribute("aria-selected",t==="hist"?"true":"false");
   syncTopbarH();
 }
-if(tabDoc) tabDoc.addEventListener("click",()=>{ setTab("doc"); if(location.hash==="#jin") history.replaceState(null,"",location.pathname); });
+if(tabDoc) tabDoc.addEventListener("click",()=>{ setTab("doc"); if(location.hash==="#jin"||location.hash==="#history") history.replaceState(null,"",location.pathname); });
 if(tabProg) tabProg.addEventListener("click",()=>{ setTab("prog"); history.replaceState(null,"","#jin"); window.scrollTo({top:0}); });
+if(tabHist) tabHist.addEventListener("click",()=>{ setTab("hist"); history.replaceState(null,"","#history"); window.scrollTo({top:0}); });
 
 /* ===== 제목(로고) 클릭 → 처음 화면 ===== */
 const brandHome=$("brandHome");
@@ -826,6 +864,55 @@ function buildProgress(){
   box.innerHTML=h;
 }
 buildProgress();
+
+/* ===== 개정 이력 렌더 ===== */
+function buildHistory(){
+  const box=$("hist-content"); if(!box) return;
+  const H=window.CBA_HISTORY||CBA.history;
+  const vers=(H&&Array.isArray(H.versions))?H.versions:(Array.isArray(H)?H:null);
+  if(!vers||!vers.length){ box.innerHTML=`<div class="hist-empty">개정 이력이 아직 없습니다.</div>`; return; }
+  const tagCls=t=>t==="신설"?"add":(t==="삭제"?"del":"edit");
+  let h="";
+  if(H&&H.intro) h+=`<p class="hist-intro">${esc(H.intro)}</p>`;
+  const latest=(vers[0]&&vers[0].date)?vers[0].date:"";
+  if(latest) h+=`<p class="hist-updated">최종 개정 ${esc(latest)}</p>`;
+  vers.forEach(v=>{
+    h+=`<section class="hcard">`;
+    h+=`<div class="hcard-top">`;
+    if(v.ver) h+=`<span class="hver">${esc(v.ver)}</span>`;
+    if(v.label) h+=`<span class="hlabel">${esc(v.label)}</span>`;
+    if(v.date) h+=`<span class="hdate">${esc(v.date)}</span>`;
+    h+=`</div>`;
+    if(v.summary) h+=`<p class="hsum">${esc(v.summary)}</p>`;
+    const chg=Array.isArray(v.changes)?v.changes:[];
+    if(chg.length){
+      h+=`<ul class="hchg">`;
+      chg.forEach(cc=>{
+        const t=cc.type||"개정";
+        const jo=cc.jo?`<button class="jo" data-jo="${esc(String(cc.jo))}">제${esc(String(cc.jo))}조</button>`:"";
+        h+=`<li><span class="htag ${tagCls(t)}">${esc(t)}</span>${jo}<span class="cd">${cc.title?`<b>${esc(cc.title)}</b>`:""}${cc.desc?`<span>${esc(cc.desc)}</span>`:""}</span></li>`;
+      });
+      h+=`</ul>`;
+    }
+    h+=`</section>`;
+  });
+  box.innerHTML=h;
+}
+buildHistory();
+
+/* 개정 이력에서 조문 클릭 → 요구안 본문으로 이동 */
+(function(){
+  const box=$("hist-content"); if(!box) return;
+  box.addEventListener("click",e=>{
+    const j=e.target.closest(".jo"); if(!j) return;
+    const n=j.dataset.jo; const el=document.getElementById("art-"+n);
+    setTab("doc");
+    if(q&&q.value){ q.value=""; }
+    favOnly=false; updateFavToggle(); runSearch();
+    history.replaceState(null,"","#art-"+n);
+    if(el) setTimeout(()=>{ el.scrollIntoView({block:"start"}); flash(el); },40);
+  });
+})();
 
 /* ===== 교섭 진행 탭 암호 잠금 (가림용) ===== */
 const P0 = window.CBA_PROGRESS||CBA.progress||{};
@@ -884,9 +971,10 @@ async function tryUnlock(){
 })();
 syncTopbarH();
 window.addEventListener("resize",syncTopbarH,{passive:true});
-setTab(location.hash==="#jin"?"prog":"doc");
+setTab(location.hash==="#jin"?"prog":(location.hash==="#history"?"hist":"doc"));
 window.addEventListener("hashchange",()=>{
   if(location.hash==="#jin"){ setTab("prog"); return; }
+  if(location.hash==="#history"){ setTab("hist"); return; }
   const el=location.hash?document.querySelector(location.hash):null;
   if(el){ setTab("doc"); setTimeout(()=>{ el.scrollIntoView({block:"start"}); flash(el); },30); }
 });
