@@ -13,7 +13,7 @@
     --red:#b21030; --red-deep:#8a0c25; --red-soft:#f7e7ea;
     --ink:#1c1a19; --ink-2:#4a4643; --muted:#7c7772;
     --paper:#fbfaf8; --card:#ffffff; --line:#e9e5df; --line-2:#f0ede8; --wash:#f4f1ec;
-    --rail:280px; --maxread:44rem; --fscale:1;
+    --rail:280px; --maxread:44rem; --fscale:1; --topbar-h:56px;
     --sans:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",system-ui,sans-serif;
   }
   *{box-sizing:border-box}
@@ -38,7 +38,9 @@
     max-width:1180px; margin:0 auto; padding:9px 16px;
     display:flex; align-items:center; gap:12px;
   }
-  .brand{display:flex; flex-direction:column; line-height:1.15; min-width:0}
+  .brand{display:flex; flex-direction:column; line-height:1.15; min-width:0; cursor:pointer; border-radius:8px}
+  .brand:hover .doc{color:var(--red)}
+  .brand:focus-visible{outline:2px solid var(--red); outline-offset:2px}
   .brand .eyebrow{font-size:11px; letter-spacing:.02em; color:var(--red); font-weight:700; white-space:nowrap}
   .brand .doc{font-size:15px; font-weight:800; letter-spacing:-.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
   .grow{flex:1 1 auto}
@@ -122,6 +124,9 @@
   }
   .art-t{font-size:17px; font-weight:800; letter-spacing:-.01em; line-height:1.4}
   .note-badge{font-size:11px; font-weight:700; color:#8a5a00; background:#fdf3dd; border:1px solid #f0dca6; border-radius:999px; padding:2px 9px}
+  .rev-badge{font-size:11px; font-weight:800; color:#fff; background:var(--red); border:0; border-radius:999px; padding:2px 9px; font-family:inherit; cursor:pointer; letter-spacing:-.01em}
+  .rev-badge:hover{background:var(--red-deep)}
+  .rev-badge:focus-visible{outline:2px solid var(--red); outline-offset:2px}
 
   .clause{display:flex; gap:9px; margin:0 0 9px; align-items:baseline}
   .clause:last-child{margin-bottom:0}
@@ -147,24 +152,116 @@
   .empty.show{display:block}
   .empty b{color:var(--ink)}
 
-  /* ===== 교섭 진행 상황판 ===== */
-  .board{max-width:var(--maxread); margin:0 auto 14px; padding:16px 18px; background:var(--card); border:1px solid var(--line); border-radius:14px}
-  .board-top{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:0 0 10px}
-  .board-title{font-size:13px; font-weight:800; letter-spacing:-.01em; color:var(--ink)}
-  .board-pct{font-size:12.5px; font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums}
-  .board-prog{height:7px; border-radius:999px; background:var(--line-2); overflow:hidden; margin:0 0 13px}
-  .board-prog i{display:block; height:100%; background:#1f7a3d; border-radius:999px; transition:width .35s}
-  .board-chips{display:flex; flex-wrap:wrap; gap:7px}
-  .fchip{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); background:var(--paper); color:var(--ink-2); border-radius:999px; padding:5px 11px; font-size:12.5px; font-weight:700; font-family:inherit; cursor:pointer}
-  .fchip .dot{width:8px; height:8px; border-radius:50%; background:var(--stc,var(--muted))}
-  .fchip b{color:var(--ink); font-variant-numeric:tabular-nums}
-  .fchip.active{border-color:var(--red); background:var(--red); color:#fff}
-  .fchip.active b{color:#fff}
-  .fchip.active .dot{outline:2px solid rgba(255,255,255,.6)}
-  .st-badge{font-size:11px; font-weight:800; color:#fff; background:var(--stc,var(--muted)); border-radius:999px; padding:2px 9px; white-space:nowrap}
-  .art.flagged{box-shadow:inset 3px 0 var(--stc,transparent); padding-left:14px}
+  /* ===== 공지 (슬림 바 + 팝업) ===== */
+  .notice-open{display:none; width:100%; max-width:var(--maxread); margin:14px auto 2px; align-items:center; gap:7px; background:#fff8ee; border:1px solid #ecd9b0; border-left:3px solid var(--red); border-radius:10px; padding:10px 14px; font-size:13.5px; font-weight:700; color:var(--red); font-family:inherit; text-align:left; cursor:pointer}
+  .notice-open:not([hidden]){display:flex}
+  html[data-theme="dark"] .notice-open{background:#2a2213; border-color:#4a3d1e}
+  .notice-modal{display:none; position:fixed; inset:0; z-index:200; align-items:center; justify-content:center; padding:20px}
+  .notice-modal:not([hidden]){display:flex}
+  .nm-backdrop{position:absolute; inset:0; background:rgba(0,0,0,.5)}
+  .nm-card{position:relative; z-index:1; width:100%; max-width:440px; max-height:82vh; overflow:auto; background:var(--card); border-radius:16px; padding:22px 22px 18px; box-shadow:0 20px 60px rgba(0,0,0,.32)}
+  .nm-title{display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; color:var(--red); margin:0 0 14px}
+  .nm-title::before{content:"📢"}
+  .nm-list{margin:0 0 16px; padding:0; list-style:none}
+  .nm-list li{position:relative; padding:0 0 10px 15px; font-size:14.5px; line-height:1.65; color:var(--ink)}
+  .nm-list li:last-child{padding-bottom:2px}
+  .nm-list li::before{content:""; position:absolute; left:3px; top:9px; width:5px; height:5px; border-radius:50%; background:var(--red)}
+  .nm-dont{display:flex; align-items:center; gap:7px; font-size:13px; color:var(--muted); margin:0 0 14px; cursor:pointer}
+  .nm-dont input{width:auto; margin:0}
+  .nm-confirm{display:block; width:100%; border:0; background:var(--red); color:#fff; border-radius:11px; padding:13px; font-size:15px; font-weight:800; font-family:inherit; cursor:pointer}
+
+  /* ===== 탭 ===== */
+  .tabs{position:sticky; top:var(--topbar-h,54px); z-index:20; display:flex; gap:2px; max-width:var(--maxread); margin:0 auto; padding:10px 0 0; background:var(--paper)}
+  .tab{
+    flex:1 1 auto; border:0; background:transparent; font-family:inherit; cursor:pointer;
+    padding:11px 10px 12px; font-size:14.5px; font-weight:800; color:var(--muted);
+    border-bottom:2.5px solid var(--line);
+  }
+  .tab[aria-selected="true"]{color:var(--red); border-bottom-color:var(--red)}
+  .tab:focus-visible{outline:2px solid var(--red); outline-offset:-2px}
+  .tabpanel[hidden]{display:none}
+  html[data-tab="prog"] .rail,html[data-tab="hist"] .rail{display:none}
+  html[data-tab="prog"] .search,html[data-tab="hist"] .search{display:none}
+  html[data-tab="prog"] .menu-btn,html[data-tab="hist"] .menu-btn{display:none}
+
+  /* ===== 즐겨찾기 필터 바 ===== */
+  .filterbar{display:flex; margin:0 0 8px}
+  .fav-toggle{
+    margin-left:auto; display:inline-flex; align-items:center; gap:6px;
+    border:1px solid var(--line); background:var(--paper); color:var(--ink-2);
+    border-radius:999px; padding:6px 13px; font-size:12.5px; font-weight:700; font-family:inherit; cursor:pointer;
+  }
+  .fav-toggle b{color:var(--ink); font-variant-numeric:tabular-nums}
+  .fav-toggle.on{border-color:#e0a000; background:#e0a000; color:#fff}
+  .fav-toggle.on b{color:#fff}
   .art.flash{animation:artflash 1.3s ease}
   @keyframes artflash{0%,15%{background:var(--red-soft)}100%{background:transparent}}
+
+  /* ===== 교섭 진행 탭 ===== */
+  #tab-prog{max-width:var(--maxread); margin:0 auto}
+  .prog-intro{font-size:15px; line-height:1.7; color:var(--ink-2); margin:18px 0 6px}
+  .prog-updated{font-size:12.5px; color:var(--muted); font-weight:700; margin:0 0 18px}
+  .pcard{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 18px 6px; margin:0 0 16px}
+  .pcard-top{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin:0 0 10px}
+  .pname{font-size:18px; font-weight:800; letter-spacing:-.01em; color:var(--ink)}
+  .pround{font-size:12px; font-weight:800; color:#fff; background:var(--red); border-radius:999px; padding:3px 10px}
+  .psum{font-size:14.5px; line-height:1.7; color:var(--ink-2); margin:0 0 14px}
+  .pcols{display:flex; gap:14px; flex-wrap:wrap; margin:0 0 4px}
+  .pcol{flex:1 1 180px; min-width:150px}
+  .pcard h4{font-size:11.5px; letter-spacing:.04em; font-weight:800; color:var(--muted); margin:0 0 7px}
+  .pmem{list-style:none; margin:0 0 14px; padding:0}
+  .pmem li{font-size:14px; color:var(--ink); padding:3px 0; line-height:1.5}
+  .pdash{font-size:14px; color:var(--muted)}
+  .plog{border-top:1px solid var(--line-2); padding-top:14px; margin-top:4px}
+  .plog ul{list-style:none; margin:0 0 12px; padding:0}
+  .plog li{position:relative; padding:0 0 12px 16px; margin:0}
+  .plog li::before{content:""; position:absolute; left:2px; top:6px; width:7px; height:7px; border-radius:50%; background:var(--red)}
+  .plog li:not(:last-child)::after{content:""; position:absolute; left:5px; top:13px; bottom:0; width:1.5px; background:var(--line)}
+  .ptag{display:block; font-size:12px; font-weight:800; color:var(--red); margin:0 0 2px}
+  .ptext{display:block; font-size:14px; line-height:1.65; color:var(--ink-2)}
+  .pdecide{margin-top:9px; background:var(--wash); border:1px solid var(--line); border-left:3px solid var(--red); border-radius:9px; padding:9px 12px}
+  .pd-h{font-size:10.5px; font-weight:800; color:var(--red); letter-spacing:.03em; margin:0 0 5px}
+  .pd-list{margin:0 0 2px; padding:0; list-style:none}
+  .pd-list li{position:relative; padding:0 0 3px 13px; margin:0; font-size:13.5px; line-height:1.55; color:var(--ink)}
+  .pd-list li::before{content:""; position:absolute; left:2px; top:8px; width:4px; height:4px; border-radius:50%; background:var(--red)}
+  .pd-next{margin-top:7px; font-size:13.5px; font-weight:700; color:var(--ink); line-height:1.5}
+  .pd-next span{display:inline-block; font-size:10px; font-weight:800; color:#fff; background:var(--red); border-radius:5px; padding:2px 7px; margin-right:7px; vertical-align:1px}
+  .prog-empty{padding:60px 20px; text-align:center; color:var(--muted); font-size:14px}
+  /* 교섭 진행 잠금 */
+  .lock{max-width:var(--maxread); margin:0 auto; padding:40px 0}
+  .lock-card{max-width:340px; margin:0 auto; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:28px 22px; text-align:center}
+  .lock-ic{font-size:30px}
+  .lock-title{font-size:18px; font-weight:800; color:var(--ink); margin:8px 0 4px}
+  .lock-desc{font-size:13.5px; color:var(--muted); margin:0 0 16px; line-height:1.6}
+  .lock-input{width:100%; font-family:inherit; font-size:15px; text-align:center; border:1px solid var(--line); border-radius:10px; padding:11px; background:var(--paper); color:var(--ink)}
+  .lock-input:focus{outline:none; border-color:var(--red)}
+  .lock-hint{font-size:12.5px; color:var(--muted); margin:10px 0 0}
+  .lock-err{font-size:13px; color:var(--red); font-weight:700; margin:10px 0 0}
+  .lock-btn{width:100%; margin-top:14px; border:0; background:var(--red); color:#fff; border-radius:11px; padding:12px; font-size:15px; font-weight:800; font-family:inherit; cursor:pointer}
+
+  /* ===== 개정 이력 탭 ===== */
+  #tab-hist{max-width:var(--maxread); margin:0 auto}
+  .hist-intro{font-size:15px; line-height:1.7; color:var(--ink-2); margin:18px 0 6px}
+  .hist-updated{font-size:12.5px; color:var(--muted); font-weight:700; margin:0 0 18px}
+  .hcard{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 18px; margin:0 0 16px}
+  .hcard-top{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin:0 0 8px}
+  .hver{font-size:12px; font-weight:800; color:#fff; background:var(--red); border-radius:999px; padding:3px 10px}
+  .hlabel{font-size:16px; font-weight:800; color:var(--ink)}
+  .hdate{margin-left:auto; font-size:13px; font-weight:700; color:var(--muted)}
+  .hsum{font-size:14.5px; line-height:1.7; color:var(--ink-2); margin:0 0 12px}
+  .hchg{list-style:none; margin:0; padding:0}
+  .hchg li{display:flex; gap:9px; align-items:flex-start; padding:9px 0; border-top:1px solid var(--line-2)}
+  .hchg li:first-child{border-top:0}
+  .htag{flex:none; font-size:11px; font-weight:800; border-radius:6px; padding:2px 8px; white-space:nowrap; margin-top:2px}
+  .htag.add{color:#fff; background:var(--red)}
+  .htag.edit{color:var(--red-deep); background:var(--red-soft)}
+  .htag.del{color:#fff; background:var(--muted)}
+  .hchg .jo{flex:none; font-size:12.5px; font-weight:800; color:var(--red-deep); background:var(--red-soft); border:0; border-radius:6px; padding:2px 8px; white-space:nowrap; margin-top:1px; cursor:pointer; font-family:inherit}
+  .hchg .jo:hover{background:var(--red); color:#fff}
+  .hchg .cd{flex:1; min-width:0}
+  .hchg .cd b{display:block; font-size:14.5px; color:var(--ink); font-weight:700; margin:0 0 2px}
+  .hchg .cd span{display:block; font-size:13.5px; line-height:1.6; color:var(--ink-2)}
+  .hist-empty{padding:60px 20px; text-align:center; color:var(--muted); font-size:14px}
 
   /* ---------- back to top ---------- */
   .totop{
@@ -254,13 +351,6 @@
   .fav:hover{border-color:#e0a000; color:#e0a000}
   .fav.on{color:#e0a000; border-color:#e7c65a; background:#fff8e6}
   html[data-theme="dark"] .fav.on{background:#3a2f10; border-color:#5a4a1a}
-  .fav-toggle{margin-left:auto}
-  .fav-toggle.on{border-color:#e0a000; background:#e0a000; color:#fff}
-  .fav-toggle.on b{color:#fff}
-  /* 목차 상태 요약 점 */
-  .toc-st{display:inline-flex; align-items:center; gap:5px; padding-left:6px; flex:none}
-  .toc-st .d{display:inline-flex; align-items:center; gap:2px; font-size:10.5px; font-weight:800; color:var(--muted); font-variant-numeric:tabular-nums}
-  .toc-st .d i{width:7px; height:7px; border-radius:50%; background:var(--stc)}
   /* 이어보기 */
   .resume{
     position:fixed; left:50%; bottom:74px; transform:translateX(-50%) translateY(10px);
@@ -291,7 +381,7 @@
 
   /* ===== 인쇄 · PDF ===== */
   @media print{
-    .topbar,.rail,.drawer,.scrim,.totop,.panel,.lnk,.fav,.art-actions,.resume,.testbadge,.dataerr{display:none !important}
+    .topbar,.rail,.drawer,.scrim,.totop,.panel,.lnk,.fav,.art-actions,.resume,.testbadge,.dataerr,.tabs,.filterbar,.notice-open,.notice-modal,.rev-badge{display:none !important}
     .shell{display:block}
     main{padding:0}
     .wrap{max-width:none; padding:0}
@@ -327,7 +417,7 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
       목차
     </button>
-    <div class="brand">
+    <div class="brand" id="brandHome" role="button" tabindex="0" aria-label="처음 화면으로" title="처음 화면으로">
       <span class="eyebrow" id="m-eyebrow"></span>
       <span class="doc" id="m-doc"></span>
     </div>
@@ -359,25 +449,64 @@
   </nav>
 
   <main>
+    <div class="tabs" id="tabs" role="tablist" aria-label="보기 전환">
+      <button class="tab" id="tabDoc" role="tab" aria-selected="true" data-tab="doc">단협 요구안</button>
+      <button class="tab" id="tabProg" role="tab" aria-selected="false" data-tab="prog">교섭 현황판</button>
+      <button class="tab" id="tabHist" role="tab" aria-selected="false" data-tab="hist">개정 이력</button>
+    </div>
     <div class="wrap">
-      <section class="hero">
-        <p class="kicker" id="m-kicker"></p>
-        <h1 id="m-h1"></h1>
-        <p class="parties" id="m-parties"></p>
-        <div class="chips" id="m-chips"></div>
-        <div class="preamble" id="m-preamble-wrap">
-          <p class="lbl" id="m-prelbl">전문</p>
-          <p id="m-preamble"></p>
+      <button class="notice-open" id="noticeOpen" hidden></button>
+      <div class="notice-modal" id="noticeModal" hidden>
+        <div class="nm-backdrop" id="nmBackdrop"></div>
+        <div class="nm-card" role="dialog" aria-modal="true" aria-labelledby="nmTitle">
+          <p class="nm-title" id="nmTitle"></p>
+          <ul class="nm-list" id="nmList"></ul>
+          <label class="nm-dont"><input type="checkbox" id="nmDont"> 오늘 하루 보지 않기</label>
+          <button class="nm-confirm" id="nmConfirm">확인</button>
+        </div>
+      </div>
+
+      <section id="tab-doc" class="tabpanel" role="tabpanel" aria-labelledby="tabDoc">
+        <section class="hero">
+          <p class="kicker" id="m-kicker"></p>
+          <h1 id="m-h1"></h1>
+          <p class="parties" id="m-parties"></p>
+          <div class="chips" id="m-chips"></div>
+          <div class="preamble" id="m-preamble-wrap">
+            <p class="lbl" id="m-prelbl">전문</p>
+            <p id="m-preamble"></p>
+          </div>
+        </section>
+
+        <div class="filterbar">
+          <button class="fav-toggle" id="favToggle">★ 즐겨찾기만 보기 <b id="favToggleCount">0</b></button>
+        </div>
+
+        <div id="content"></div>
+
+        <div class="empty" id="empty">
+          <span id="emptymsg"></span>
         </div>
       </section>
 
-      <div class="board" id="board" hidden></div>
+      <section id="tab-prog" class="tabpanel" role="tabpanel" aria-labelledby="tabProg" hidden>
+        <div class="lock" id="prog-lock" hidden>
+          <div class="lock-card">
+            <div class="lock-ic">🔒</div>
+            <p class="lock-title">교섭 현황판</p>
+            <p class="lock-desc">조합원 열람용입니다. 암호를 입력해 주세요.</p>
+            <input class="lock-input" id="lockInput" type="password" placeholder="암호" autocomplete="off" autocapitalize="off">
+            <p class="lock-hint" id="lockHint" hidden></p>
+            <p class="lock-err" id="lockErr" hidden>암호가 올바르지 않습니다.</p>
+            <button class="lock-btn" id="lockBtn">확인</button>
+          </div>
+        </div>
+        <div id="prog-content"></div>
+      </section>
 
-      <div id="content"></div>
-
-      <div class="empty" id="empty">
-        <span id="emptymsg"></span>
-      </div>
+      <section id="tab-hist" class="tabpanel" role="tabpanel" aria-labelledby="tabHist" hidden>
+        <div id="hist-content"></div>
+      </section>
 
       <div class="dataerr" id="dataerr" hidden>
         <p class="lbl">문서 데이터를 불러오지 못했습니다</p>
@@ -402,6 +531,7 @@
 
 
 <script src="./data.js"></script>
+<script src="./progress.js"></script>
 <script>
 (function(){
   const CBA = window.CBA;
@@ -418,20 +548,6 @@
   }
   const meta = CBA.meta || {};
   const DATA = CBA.chapters;
-
-  /* ===== 교섭 상태 정의 (data.js의 meta.statuses가 있으면 우선, 없으면 기본값) ===== */
-  const DEF_STATUSES=[
-    {key:"unresolved", label:"미합의",   color:"#7c7772"},
-    {key:"issue",      label:"쟁점",     color:"#b21030"},
-    {key:"company",    label:"사측수정안", color:"#2563a8"},
-    {key:"agreed",     label:"타결",     color:"#1f7a3d"}
-  ];
-  const STATUSES=(Array.isArray(meta.statuses)&&meta.statuses.length)?meta.statuses:DEF_STATUSES;
-  const stMap=Object.fromEntries(STATUSES.map(s=>[s.key,s]));
-  const DEFAULT_ST=STATUSES[0].key;
-  const DONE_ST=STATUSES[STATUSES.length-1].key;
-  const stKeyOf=a=>(a&&a.st&&stMap[a.st])?a.st:DEFAULT_ST;
-  let activeStatus="all";
   let favOnly=false;
   const favSet=new Set();
 
@@ -463,11 +579,10 @@
     ch.arts.forEach(a=>{
       const words=[a.t]; a.b.forEach(x=>{if(x.t)words.push(x.t); if(x.L)words.push(x.L.join(" "));});
       const hay=words.join(" ").toLowerCase();
-      const sk=stKeyOf(a); const s=stMap[sk]; const flagged=sk!==DEFAULT_ST;
-      html+=`<article class="art${flagged?" flagged":""}" id="art-${a.n}" data-ch="${ch.n}" data-st="${sk}" data-search="${esc(hay)}"${flagged?` style="--stc:${s.color}"`:""}>`;
+      html+=`<article class="art" id="art-${a.n}" data-ch="${ch.n}" data-search="${esc(hay)}">`;
       html+=`<div class="art-head"><span class="art-no">제${a.n}조</span><span class="art-t">${esc(a.t)}</span>`;
       if(a.note) html+=`<span class="note-badge">${esc(a.note)}</span>`;
-      if(flagged) html+=`<span class="st-badge" style="--stc:${s.color}">${esc(s.label)}</span>`;
+      if(a.rev) html+=`<button class="rev-badge" data-jo="${a.n}" aria-label="개정 이력 보기">${esc(typeof a.rev==="string"?a.rev:(a.rev.label||"개정"))}</button>`;
       html+=`<span class="art-actions"><button class="fav" data-jo="${a.n}" aria-label="제${a.n}조 즐겨찾기" aria-pressed="false">☆</button><button class="lnk" data-jo="${a.n}" aria-label="제${a.n}조 링크 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>링크</button></span>`;
       html+=`</div>`;
       a.b.forEach(x=>{
@@ -491,12 +606,7 @@
     if(!el) return;
     let t="";
     DATA.forEach(ch=>{
-      const cnt={};
-      ch.arts.forEach(a=>{const k=stKeyOf(a); if(k!==DEFAULT_ST) cnt[k]=(cnt[k]||0)+1;});
-      let dots="";
-      STATUSES.forEach(s=>{ if(s.key!==DEFAULT_ST && cnt[s.key]) dots+=`<span class="d" style="--stc:${s.color}"><i></i>${cnt[s.key]}</span>`; });
-      const stHtml = dots?`<span class="toc-st">${dots}</span>`:"";
-      t+=`<a class="ch" href="#ch-${ch.n}" data-ch="${ch.n}"><span class="no">${chLabel(ch.n)}</span><span class="nm">${esc(ch.title)}</span>${stHtml}</a>`;
+      t+=`<a class="ch" href="#ch-${ch.n}" data-ch="${ch.n}"><span class="no">${chLabel(ch.n)}</span><span class="nm">${esc(ch.title)}</span></a>`;
     });
     el.innerHTML=t;
   }
@@ -533,9 +643,8 @@ function runSearch(){
   let any=false;
   arts.forEach(a=>{
     const okText=!term||a.dataset.search.includes(term);
-    const okStat=activeStatus==="all"||a.dataset.st===activeStatus;
     const okFav=!favOnly||favSet.has(a.id.slice(4));
-    const hit=okText&&okStat&&okFav;
+    const hit=okText&&okFav;
     a.style.display=hit?"":"none";
     if(hit) any=true;
   });
@@ -590,14 +699,14 @@ const LS={get(k){try{return localStorage.getItem(k);}catch(e){return null;}},set
 /* ===== 즐겨찾기 ===== */
 try{ (JSON.parse(LS.get("cba-favs"))||[]).forEach(n=>favSet.add(String(n))); }catch(e){}
 function saveFavs(){ LS.set("cba-favs", JSON.stringify([...favSet])); }
-function updateFavCount(){ const c=document.querySelector(".fav-count"); if(c) c.textContent=favSet.size; }
 function markStar(n){
   const on=favSet.has(n);
   document.querySelectorAll('.fav[data-jo="'+n+'"]').forEach(b=>{ b.classList.toggle("on",on); b.textContent=on?"★":"☆"; b.setAttribute("aria-pressed",on?"true":"false"); });
 }
 function toggleFav(n){
   if(favSet.has(n)) favSet.delete(n); else favSet.add(n);
-  saveFavs(); markStar(n); updateFavCount();
+  saveFavs(); markStar(n);
+  const c=$("favToggleCount"); if(c) c.textContent=favSet.size;
   if(favOnly) runSearch();
 }
 favSet.forEach(n=>markStar(n));
@@ -620,6 +729,8 @@ function copyText(t){
   });
 }
 content.addEventListener("click",e=>{
+  const rv=e.target.closest(".rev-badge");
+  if(rv){ setTab("hist"); history.replaceState(null,"","#history"); window.scrollTo({top:0}); return; }
   const fb=e.target.closest(".fav");
   if(fb){ toggleFav(fb.dataset.jo); return; }
   const b=e.target.closest(".lnk"); if(!b) return;
@@ -673,29 +784,199 @@ themeBtn.addEventListener("click",()=>{
   applyTheme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark");
 });
 
-/* ===== 교섭 진행 상황판 ===== */
-const board=$("board");
-function buildBoard(){
-  const counts={}; STATUSES.forEach(s=>counts[s.key]=0);
-  arts.forEach(a=>{const k=a.dataset.st; counts[k]=(counts[k]||0)+1;});
-  const total=arts.length;
-  const done=counts[DONE_ST]||0;
-  const pct=total?Math.round(done/total*100):0;
-  const doneLabel=(stMap[DONE_ST]&&stMap[DONE_ST].label)||"완료";
-  let chips=`<button class="fchip active" data-st="all">전체 <b>${total}</b></button>`;
-  STATUSES.forEach(s=>{ chips+=`<button class="fchip" data-st="${s.key}" style="--stc:${s.color}"><span class="dot"></span>${esc(s.label)} <b>${counts[s.key]||0}</b></button>`; });
-  chips+=`<button class="fchip fav-toggle${favOnly?" on":""}" data-fav="1">★ 즐겨찾기 <b class="fav-count">${favSet.size}</b></button>`;
-  board.innerHTML=`<div class="board-top"><span class="board-title">교섭 진행 현황</span><span class="board-pct">${esc(doneLabel)} ${done} / ${total} · ${pct}%</span></div><div class="board-prog"><i style="width:${pct}%"></i></div><div class="board-chips">${chips}</div>`;
-  board.hidden=false;
+/* ===== 즐겨찾기 필터 바 ===== */
+const favToggle=$("favToggle");
+function updateFavToggle(){
+  const c=$("favToggleCount"); if(c) c.textContent=favSet.size;
+  if(favToggle) favToggle.classList.toggle("on",favOnly);
 }
-buildBoard();
-board.addEventListener("click",e=>{
-  const fav=e.target.closest(".fav-toggle");
-  if(fav){ favOnly=!favOnly; fav.classList.toggle("on",favOnly); runSearch(); return; }
-  const b=e.target.closest(".fchip"); if(!b) return;
-  activeStatus=b.dataset.st;
-  [...board.querySelectorAll(".fchip:not(.fav-toggle)")].forEach(x=>x.classList.toggle("active",x===b));
+if(favToggle){
+  favToggle.addEventListener("click",()=>{ favOnly=!favOnly; updateFavToggle(); runSearch(); });
+}
+updateFavToggle();
+
+/* ===== 탭 전환 (단협 요구안 / 교섭 진행 / 개정 이력) ===== */
+const tabDoc=$("tabDoc"), tabProg=$("tabProg"), tabHist=$("tabHist"), panDoc=$("tab-doc"), panProg=$("tab-prog"), panHist=$("tab-hist");
+const topbarEl=document.querySelector(".topbar");
+function syncTopbarH(){ if(topbarEl) document.documentElement.style.setProperty("--topbar-h", topbarEl.offsetHeight+"px"); }
+function setTab(t){
+  if(t!=="prog"&&t!=="hist") t="doc";
+  document.documentElement.setAttribute("data-tab",t);
+  if(panDoc) panDoc.hidden=(t!=="doc");
+  if(panProg) panProg.hidden=(t!=="prog");
+  if(panHist) panHist.hidden=(t!=="hist");
+  if(tabDoc) tabDoc.setAttribute("aria-selected",t==="doc"?"true":"false");
+  if(tabProg) tabProg.setAttribute("aria-selected",t==="prog"?"true":"false");
+  if(tabHist) tabHist.setAttribute("aria-selected",t==="hist"?"true":"false");
+  syncTopbarH();
+}
+if(tabDoc) tabDoc.addEventListener("click",()=>{ setTab("doc"); if(location.hash==="#jin"||location.hash==="#history") history.replaceState(null,"",location.pathname); });
+if(tabProg) tabProg.addEventListener("click",()=>{ setTab("prog"); history.replaceState(null,"","#jin"); window.scrollTo({top:0}); });
+if(tabHist) tabHist.addEventListener("click",()=>{ setTab("hist"); history.replaceState(null,"","#history"); window.scrollTo({top:0}); });
+
+/* ===== 제목(로고) 클릭 → 처음 화면 ===== */
+const brandHome=$("brandHome");
+function goHome(){
+  setTab("doc");
+  if(q && q.value){ q.value=""; }
+  favOnly=false; updateFavToggle();
   runSearch();
+  if(location.hash){ history.replaceState(null,"", location.pathname+location.search); }
+  try{ window.scrollTo({top:0,behavior:"smooth"}); }catch(e){ try{ window.scrollTo(0,0); }catch(_){} }
+}
+if(brandHome){
+  brandHome.addEventListener("click",goHome);
+  brandHome.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); goHome(); } });
+}
+
+/* ===== 교섭 진행 렌더 ===== */
+function buildProgress(){
+  const box=$("prog-content"); if(!box) return;
+  const P=window.CBA_PROGRESS||CBA.progress;
+  if(!P||!Array.isArray(P.companies)||!P.companies.length){ box.innerHTML=`<div class="prog-empty">교섭 현황판 정보가 아직 없습니다.</div>`; return; }
+  const memList=a=>(Array.isArray(a)&&a.length)?`<ul class="pmem">${a.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<span class="pdash">미정</span>`;
+  let h="";
+  if(P.intro) h+=`<p class="prog-intro">${esc(P.intro)}</p>`;
+  if(P.updated) h+=`<p class="prog-updated">최종 업데이트 ${esc(P.updated)}</p>`;
+  P.companies.forEach(c=>{
+    h+=`<section class="pcard">`;
+    h+=`<div class="pcard-top"><span class="pname">${esc(c.name||"")}</span>${c.round?`<span class="pround">${esc(c.round)}</span>`:""}</div>`;
+    if(c.summary) h+=`<p class="psum">${esc(c.summary)}</p>`;
+    h+=`<div class="pcols"><div class="pcol"><h4>노조측 교섭위원</h4>${memList(c.union)}</div><div class="pcol"><h4>회사측 교섭위원</h4>${memList(c.company)}</div></div>`;
+    if(Array.isArray(c.log)&&c.log.length){
+      h+=`<div class="plog"><h4>주요 논의 상황</h4><ul>`;
+      c.log.forEach(e=>{
+        const tag=[e.round,e.date].filter(Boolean).map(esc).join(" · ");
+        const decs=Array.isArray(e.decisions)?e.decisions.filter(x=>x&&x.trim()):[];
+        let extra="";
+        if(decs.length||(e.next&&e.next.trim())){
+          extra+=`<div class="pdecide">`;
+          if(decs.length) extra+=`<div class="pd-h">결정사항</div><ul class="pd-list">${decs.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+          if(e.next&&e.next.trim()) extra+=`<div class="pd-next"><span>다음 일정</span>${esc(e.next)}</div>`;
+          extra+=`</div>`;
+        }
+        h+=`<li>${tag?`<span class="ptag">${tag}</span>`:""}<span class="ptext">${esc(e.text||"")}</span>${extra}</li>`;
+      });
+      h+=`</ul></div>`;
+    }
+    h+=`</section>`;
+  });
+  box.innerHTML=h;
+}
+buildProgress();
+
+/* ===== 개정 이력 렌더 ===== */
+function buildHistory(){
+  const box=$("hist-content"); if(!box) return;
+  const H=window.CBA_HISTORY||CBA.history;
+  const vers=(H&&Array.isArray(H.versions))?H.versions:(Array.isArray(H)?H:null);
+  if(!vers||!vers.length){ box.innerHTML=`<div class="hist-empty">개정 이력이 아직 없습니다.</div>`; return; }
+  const tagCls=t=>t==="신설"?"add":(t==="삭제"?"del":"edit");
+  let h="";
+  if(H&&H.intro) h+=`<p class="hist-intro">${esc(H.intro)}</p>`;
+  const latest=(vers[0]&&vers[0].date)?vers[0].date:"";
+  if(latest) h+=`<p class="hist-updated">최종 개정 ${esc(latest)}</p>`;
+  vers.forEach(v=>{
+    h+=`<section class="hcard">`;
+    h+=`<div class="hcard-top">`;
+    if(v.ver) h+=`<span class="hver">${esc(v.ver)}</span>`;
+    if(v.label) h+=`<span class="hlabel">${esc(v.label)}</span>`;
+    if(v.date) h+=`<span class="hdate">${esc(v.date)}</span>`;
+    h+=`</div>`;
+    if(v.summary) h+=`<p class="hsum">${esc(v.summary)}</p>`;
+    const chg=Array.isArray(v.changes)?v.changes:[];
+    if(chg.length){
+      h+=`<ul class="hchg">`;
+      chg.forEach(cc=>{
+        const t=cc.type||"개정";
+        const jo=cc.jo?`<button class="jo" data-jo="${esc(String(cc.jo))}">제${esc(String(cc.jo))}조</button>`:"";
+        h+=`<li><span class="htag ${tagCls(t)}">${esc(t)}</span>${jo}<span class="cd">${cc.title?`<b>${esc(cc.title)}</b>`:""}${cc.desc?`<span>${esc(cc.desc)}</span>`:""}</span></li>`;
+      });
+      h+=`</ul>`;
+    }
+    h+=`</section>`;
+  });
+  box.innerHTML=h;
+}
+buildHistory();
+
+/* 개정 이력에서 조문 클릭 → 요구안 본문으로 이동 */
+(function(){
+  const box=$("hist-content"); if(!box) return;
+  box.addEventListener("click",e=>{
+    const j=e.target.closest(".jo"); if(!j) return;
+    const n=j.dataset.jo; const el=document.getElementById("art-"+n);
+    setTab("doc");
+    if(q&&q.value){ q.value=""; }
+    favOnly=false; updateFavToggle(); runSearch();
+    history.replaceState(null,"","#art-"+n);
+    if(el) setTimeout(()=>{ el.scrollIntoView({block:"start"}); flash(el); },40);
+  });
+})();
+
+/* ===== 교섭 진행 탭 암호 잠금 (가림용) ===== */
+const P0 = window.CBA_PROGRESS||CBA.progress||{};
+const gateHash = (P0.gate && P0.gate.hash) ? String(P0.gate.hash) : null;
+let progUnlocked = !gateHash;
+if(gateHash){ try{ if(localStorage.getItem("cba-prog-unlock")===gateHash) progUnlocked=true; }catch(e){} }
+function applyGate(){
+  const lock=$("prog-lock"), content=$("prog-content"); if(!content) return;
+  if(!gateHash || progUnlocked){ if(lock) lock.hidden=true; content.hidden=false; }
+  else { if(lock) lock.hidden=false; content.hidden=true; }
+}
+async function sha256hex(s){
+  const b=await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+async function tryUnlock(){
+  const inp=$("lockInput"), errEl=$("lockErr"); if(!inp) return;
+  const v=(inp.value||"").trim(); if(!v) return;
+  let hex=""; try{ hex=await sha256hex(v); }catch(e){}
+  if(hex && hex===gateHash){
+    progUnlocked=true; try{ localStorage.setItem("cba-prog-unlock", gateHash); }catch(e){}
+    if(errEl) errEl.hidden=true; applyGate();
+  } else { if(errEl) errEl.hidden=false; }
+}
+(function initGate(){
+  if(gateHash && P0.gate && P0.gate.hint){ const hEl=$("lockHint"); if(hEl){ hEl.textContent="힌트: "+P0.gate.hint; hEl.hidden=false; } }
+  const b=$("lockBtn"), i=$("lockInput");
+  if(b) b.addEventListener("click",tryUnlock);
+  if(i) i.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); tryUnlock(); } });
+  applyGate();
+})();
+(function buildNotice(){
+  const P=window.CBA_PROGRESS||CBA.progress||{};
+  const N=P.notice;
+  const items=(N&&Array.isArray(N.items))?N.items.filter(x=>x&&x.trim()):[];
+  const openBtn=$("noticeOpen"), modal=$("noticeModal");
+  if(!openBtn||!modal) return;
+  if(!N||!items.length){ openBtn.hidden=true; modal.hidden=true; return; }
+  const title=N.title||"공지사항";
+  $("nmTitle").textContent=title;
+  $("nmList").innerHTML=items.map(x=>`<li>${esc(x)}</li>`).join("");
+  openBtn.textContent="📢 "+title+" 보기";
+  openBtn.hidden=false;
+  const openM=()=>{ modal.hidden=false; };
+  const closeM=()=>{
+    modal.hidden=true;
+    if($("nmDont").checked){ try{ localStorage.setItem("cba-notice-hide", new Date().toISOString().slice(0,10)); }catch(e){} }
+  };
+  openBtn.addEventListener("click",openM);
+  $("nmConfirm").addEventListener("click",closeM);
+  $("nmBackdrop").addEventListener("click",closeM);
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!modal.hidden) closeM(); });
+  let hideDate=null; try{ hideDate=localStorage.getItem("cba-notice-hide"); }catch(e){}
+  const today=new Date().toISOString().slice(0,10);
+  if(hideDate!==today) openM();
+})();
+syncTopbarH();
+window.addEventListener("resize",syncTopbarH,{passive:true});
+setTab(location.hash==="#jin"?"prog":(location.hash==="#history"?"hist":"doc"));
+window.addEventListener("hashchange",()=>{
+  if(location.hash==="#jin"){ setTab("prog"); return; }
+  if(location.hash==="#history"){ setTab("hist"); return; }
+  const el=location.hash?document.querySelector(location.hash):null;
+  if(el){ setTab("doc"); setTimeout(()=>{ el.scrollIntoView({block:"start"}); flash(el); },30); }
 });
 
 /* ===== 링크 공유 (Web Share) ===== */
@@ -716,9 +997,7 @@ q.addEventListener("keydown",e=>{
   e.preventDefault();
   const n=m[1], el=document.getElementById("art-"+n);
   if(el){
-    q.value=""; activeStatus="all"; favOnly=false;
-    [...board.querySelectorAll(".fchip:not(.fav-toggle)")].forEach(x=>x.classList.toggle("active",x.dataset.st==="all"));
-    const ft=board.querySelector(".fav-toggle"); if(ft) ft.classList.remove("on");
+    q.value=""; favOnly=false; updateFavToggle();
     runSearch();
     setTimeout(()=>{ el.scrollIntoView({block:"start"}); flash(el); },30);
   } else { toast("제"+n+"조는 없습니다"); }
@@ -752,7 +1031,7 @@ $("printBtn").addEventListener("click",()=>{closePanel(); window.print();});
 window.addEventListener("beforeprint",()=>{
   let changed=false;
   if(q.value){q.value=""; changed=true;}
-  if(activeStatus!=="all"){activeStatus="all"; [...board.querySelectorAll(".fchip")].forEach(x=>x.classList.toggle("active",x.dataset.st==="all")); changed=true;}
+  if(favOnly){favOnly=false; updateFavToggle(); changed=true;}
   if(changed) runSearch();
 });
 
